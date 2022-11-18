@@ -18,18 +18,18 @@ const createCollection = async () => {
       if (gender === 'unknown') {
         i -= 1;
       } else {
-        const desc = [];
+        const subscriptions = [];
         for (let s = 1; s <= Math.floor(Math.random() * 150); s += 1) {
           const number = Math.floor(Math.random() * 200) + 1;
           if (number !== i) {
-            desc.includes(number) ? desc : desc.push(number);
+            subscriptions.includes(number) ? subscriptions : subscriptions.push(number);
           }
         }
         const user = new User({
           number: i,
           first_name,
           gender,
-          desc,
+          subscriptions,
         });
         user.save();
       }

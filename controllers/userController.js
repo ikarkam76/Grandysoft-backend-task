@@ -12,9 +12,9 @@ const getUserByNumber = async (req, res, next) => {
   const user = await User.find({ number: order_by });
   const users = await User.find({});
   const friends = [];
-  for (const item of user[0].desc) {
+  for (const item of user[0].subscriptions) {
     const friend = users.find((elem) => elem.number === item);
-    if (friend.desc.includes(order_by)) {
+    if (friend.subscriptions.includes(order_by)) {
       friends.push(friend);
     }
   }
@@ -46,14 +46,14 @@ const getUserByNumber = async (req, res, next) => {
 const getMaxFollowing = async (req, res, next) => {
     const response = await User.find({});
     const sortedUsers = [...response]
-      .sort((a, b) => b.desc.length - a.desc.length)
+      .sort((a, b) => b.subscriptions.length - a.subscriptions.length)
       .slice(0, 5);
   res.render("index", { title: "Users", records: sortedUsers });
 };
 
 const getNotFollowing = async (req, res, next) => {
     const response = await User.find({});
-    const sortedUsers = response.filter(user => user.desc.length === 0);
+    const sortedUsers = response.filter(user => user.subscriptions.length === 0);
   res.render("index", { title: "Users", records: sortedUsers });
 };
 
