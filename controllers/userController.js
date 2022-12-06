@@ -1,61 +1,73 @@
-const { User } = require('../userModel');
+const { connection } = require("../connect");
 
 const getUsersController = async (req, res, next) => {
-  const response = await User.find({});
-  const sortedUsers = [...response].sort(
-    (a, b) => a.number - b.number);
-    res.render('index', {title: 'Users', records: sortedUsers});
+  const getSQL = "SELECT * FROM test_db.members ORDER BY id";
+  await connection.query(getSQL, (err, result) => {
+    if (err) {
+      console.log(err.message);
+    } else {
+      res.render("index", { title: "Users", records: result });
+    }
+  });
+  
 };
 
 const getUserByNumber = async (req, res, next) => {
   const { order_by, order_type } = req.query;
-  const user = await User.find({ number: order_by });
-  const users = await User.find({});
-  const friends = [];
-  for (const item of user[0].subscriptions) {
-    const friend = users.find((elem) => elem.number === item);
-    if (friend.subscriptions.includes(order_by)) {
-      friends.push(friend);
+  const getSQL = `SELECT * FROM test_db.members WHERE id=${order_by}`;
+  await connection.query(getSQL, (err, result) => {
+    if (err) {
+      console.log(err.message);
+    } else {
+      const name = result[0].first_name;
+      const userSubs = JSON.parse(result[0].subscription);
+      const getFriend = `SELECT * FROM test_db.members WHERE id IN (${userSubs}) ORDER BY ${order_type}`;
+      connection.query(getFriend, (err, result) => {
+        if (err) {
+          console.log(err.message);
+        } else {
+          const friends = result.filter((elem) =>
+            JSON.parse(elem.subscription).includes(Number(order_by))
+          );
+          res.render("index", {
+            title: `User ${name}(id:${order_by}) with subscriptions ${userSubs}`,
+            records: friends,
+          });
+        }
+      })
     }
-  }
-  const sortedUsersByName = [...friends].sort((a, b) => a.first_name - b.first_name);
-  const sortedUsersByNumber = [...friends].sort((a, b) => a.number - b.number);
-  const sortedUsersByGender = [...friends].sort((a, b) => a.gender - b.gender);
-
-  switch (order_type) {
-    case "first_name":
-      res.render("index", { title: "Friends sorted by first_name", records: sortedUsersByName });
-      break;
-    case "number":
-      res.render("index", {
-        title: "Friends sorted by number",
-        records: sortedUsersByNumber,
-      });
-      break;
-    case "gender":
-      res.render("index", {
-        title: "Friends sorted by gender",
-        records: sortedUsersByGender,
-      });
-      break;
-    default:
-      res.render('index', {title: 'Not found this type', records: []});
-  }
-};
+  })
+}
 
 const getMaxFollowing = async (req, res, next) => {
-    const response = await User.find({});
-    const sortedUsers = [...response]
-      .sort((a, b) => b.subscriptions.length - a.subscriptions.length)
-      .slice(0, 5);
-  res.render("index", { title: "Users", records: sortedUsers });
+  const getSQL = "SELECT * FROM test_db.members ORDER BY subcount DESC LIMIT 5";
+  await connection.query(getSQL, (err, result) => {
+    if (err) {
+      console.log(err.message);
+    } else {
+      res.render("index", { title: "5 users with max-following", records: result });
+    }
+  });
 };
 
 const getNotFollowing = async (req, res, next) => {
-    const response = await User.find({});
-    const sortedUsers = response.filter(user => user.subscriptions.length === 0);
-  res.render("index", { title: "Users", records: sortedUsers });
+  const getSQL = "SELECT * FROM test_db.members WHERE subcount = 0";
+  await connection.query(getSQL, (err, result) => {
+    if (err) {
+      console.log(err.message);
+    } else {
+     res.render("index", {
+       title: "Users with 0 subscriptions",
+       records: result,
+     });
+    }
+  });
+  
 };
 
-
-module.exports = { getUsersController, getMaxFollowing, getNotFollowing, getUserByNumber };
+module.exports = {
+  getUsersController,
+  getMaxFollowing,
+  getNotFollowing,
+  getUserByNumber,
+}

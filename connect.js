@@ -1,11 +1,13 @@
-const mongoose = require("mongoose");
+const mysql = require('mysql');
 require("dotenv").config();
 
-const url = process.env.MONGODB_URL;
+const { HOST, USER, DATABASE, PASSWORD } = process.env;
 
-const connectMongo = async () => {
-  await mongoose.connect(url);
-  console.log("DB connected successfully");
-};
+const connection = mysql.createConnection({
+  host: HOST,
+  user: USER,
+  database: DATABASE,
+  password: PASSWORD
+});
 
-module.exports = { connectMongo };
+module.exports = { connection };

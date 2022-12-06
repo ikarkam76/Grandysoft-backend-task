@@ -1,5 +1,5 @@
 const express = require("express");
-const { connectMongo } = require("./connect");
+const { connection } = require("./connect");
 const { getUsersController, getMaxFollowing, getNotFollowing, getUserByNumber } = require("./controllers/userController");
 const createCollection = require("./services/createUsers");
 const path = require('path');
@@ -17,12 +17,34 @@ app.get("/not-following", getNotFollowing);
 
 const start = async () => {
     try {
-        await connectMongo();
+        await connection.connect((err) => {
+          if (err) {
+            return console.log(err.message);
+          } else {
+            console.log("Database connected!");
+          }
+        });
+        await connection.query(
+          "CREATE TABLE IF NOT EXISTS test_db.members(id INT, subcount INT, first_name VARCHAR(100), gender ENUM('male','female'), subscription TEXT)",
+          (err, result) => {
+            if (err) {
+              console.log(err.message);
+            } else {
+              console.log(result);
+            }
+          }
+        );
         await createCollection();
-        app.listen(PORT, () => {
+        await app.listen(PORT, () => {
           console.log(`Server running. Use API on port: ${PORT}`);
         });
-
+        // connection.end((err) => {
+        //   if (err) {
+        //     return console.log(err.message);
+        //   } else {
+        //     console.log("Database closed!");
+        //   }
+        // });
     } catch (err) {
         console.log(err.message);
         return process.exit(1);

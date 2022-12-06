@@ -14,10 +14,10 @@
           <%if (records.length >0){ %>
           <% records.forEach(function(row){ %>
           <tr>
-            <td><%= row.number %></td>
+            <td><%= row.id %></td>
             <td><%= row.first_name %></td>
             <td><%= row.gender %></td>
-            <td><%= row.subscriptions %></td>
+            <td><%= row.subscription %></td>
           </tr>
           <% })}else{ %>
             <tr>
