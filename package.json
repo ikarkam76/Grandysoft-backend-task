@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./app.js",
-    "start:dev": "npx nodemon ./app.js",
+    "start:dev": "npx nodemon ./app.js"
   },
   "keywords": [],
   "author": "ikarkam76 <ikarkam76@gmail.com>",

@@ -31,7 +31,7 @@ const createCollection = async () => {
               }
             }
             const sql =
-              "INSERT INTO test_db.members(id, subcount, first_name, gender, subscription) VALUES ?";
+              "INSERT INTO test_db.members(number, subcount, first_name, gender, subscription) VALUES ?";
             const values = [
               [i, subscriptions.length, first_name, gender, JSON.stringify(subscriptions)],
             ];

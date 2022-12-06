@@ -1,7 +1,7 @@
 const { connection } = require("../connect");
 
 const getUsersController = async (req, res, next) => {
-  const getSQL = "SELECT * FROM test_db.members ORDER BY id";
+  const getSQL = "SELECT * FROM test_db.members ORDER BY number";
   await connection.query(getSQL, (err, result) => {
     if (err) {
       console.log(err.message);
@@ -14,14 +14,14 @@ const getUsersController = async (req, res, next) => {
 
 const getUserByNumber = async (req, res, next) => {
   const { order_by, order_type } = req.query;
-  const getSQL = `SELECT * FROM test_db.members WHERE id=${order_by}`;
+  const getSQL = `SELECT * FROM test_db.members WHERE number=${order_by}`;
   await connection.query(getSQL, (err, result) => {
     if (err) {
       console.log(err.message);
     } else {
       const name = result[0].first_name;
       const userSubs = JSON.parse(result[0].subscription);
-      const getFriend = `SELECT * FROM test_db.members WHERE id IN (${userSubs}) ORDER BY ${order_type}`;
+      const getFriend = `SELECT * FROM test_db.members WHERE number IN (${userSubs}) ORDER BY ${order_type}`;
       connection.query(getFriend, (err, result) => {
         if (err) {
           console.log(err.message);
@@ -30,7 +30,7 @@ const getUserByNumber = async (req, res, next) => {
             JSON.parse(elem.subscription).includes(Number(order_by))
           );
           res.render("index", {
-            title: `User ${name}(id:${order_by}) with subscriptions ${userSubs}`,
+            title: `User ${name}(number:${order_by}) with subscriptions ${userSubs}`,
             records: friends,
           });
         }
